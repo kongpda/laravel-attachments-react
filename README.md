@@ -15,3 +15,11 @@ It provides:
 - upload, preview, caption, and delete workflow helpers
 
 It does not implement backend storage, auth, or route logic. Those stay in the Laravel packages.
+
+## Local development
+
+```bash
+bun install
+bun run check
+bun run build
+```
