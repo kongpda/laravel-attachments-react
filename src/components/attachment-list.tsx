@@ -1,48 +1,76 @@
+import type { ReactNode } from 'react';
 import type { AttachmentActionHandlers, AttachmentResource } from '../types';
+import { cn } from '../utils';
+import { Badge } from './badge';
+import { Button } from './button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './card';
 
 type AttachmentListProps = {
   attachments: AttachmentResource[];
+  className?: string;
+  emptyState?: ReactNode;
 } & AttachmentActionHandlers;
 
 export function AttachmentList({
   attachments,
+  className,
+  emptyState,
   onPreview,
   onDelete,
 }: AttachmentListProps) {
-  return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {attachments.map((attachment) => (
-        <article
-          key={attachment.id}
-          className="rounded-xl border bg-card p-4 text-card-foreground shadow-sm"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium">{attachment.file_name}</p>
-              <p className="text-xs text-muted-foreground">{attachment.file_type ?? 'file'}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {attachment.is_previewable && onPreview ? (
-                <button
-                  type="button"
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                  onClick={() => onPreview(attachment)}
-                >
-                  Preview
-                </button>
-              ) : null}
-              {onDelete ? (
-                <button
-                  type="button"
-                  className="text-xs text-destructive hover:opacity-80"
-                  onClick={() => onDelete(attachment)}
-                >
-                  Delete
-                </button>
-              ) : null}
-            </div>
+  if (attachments.length === 0) {
+    return (
+      <div className={className}>
+        {emptyState ?? (
+          <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+            No attachments available yet.
           </div>
-        </article>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn('grid gap-4 md:grid-cols-2 xl:grid-cols-3', className)}>
+      {attachments.map((attachment) => (
+        <Card key={attachment.id} className="overflow-hidden">
+          <CardHeader className="space-y-3 p-4 pb-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 space-y-1">
+                <CardTitle className="truncate text-sm">{attachment.file_name}</CardTitle>
+                <p className="text-xs text-muted-foreground">{attachment.file_type ?? 'file'}</p>
+              </div>
+              {attachment.is_default ? <Badge variant="secondary">Default</Badge> : null}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3 p-4 pt-0">
+            {attachment.caption ? (
+              <p className="line-clamp-2 text-sm text-muted-foreground">{attachment.caption}</p>
+            ) : null}
+            <div className="flex flex-wrap gap-2">
+              {attachment.group ? <Badge variant="outline">{attachment.group}</Badge> : null}
+              {attachment.is_image ? <Badge variant="secondary">Image</Badge> : null}
+              {attachment.is_previewable ? <Badge variant="outline">Previewable</Badge> : null}
+            </div>
+          </CardContent>
+          <CardFooter className="justify-end gap-2 p-4 pt-0">
+            {attachment.is_previewable && onPreview ? (
+              <Button variant="outline" size="sm" onClick={() => onPreview(attachment)}>
+                Preview
+              </Button>
+            ) : null}
+            <a href={attachment.url} target="_blank" rel="noreferrer">
+              <Button variant="ghost" size="sm">
+                Open
+              </Button>
+            </a>
+            {onDelete ? (
+              <Button variant="destructive" size="sm" onClick={() => onDelete(attachment)}>
+                Delete
+              </Button>
+            ) : null}
+          </CardFooter>
+        </Card>
       ))}
     </div>
   );

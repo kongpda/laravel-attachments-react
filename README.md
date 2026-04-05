@@ -11,33 +11,73 @@ It provides:
 
 - typed attachment contracts
 - composable React primitives
-- semantic class-token defaults that fit shadcn-style design systems
+- bundled shadcn-style source components for cards, buttons, badges, and dialogs
 - upload, preview, caption, and delete workflow helpers
 
 It does not implement backend storage, auth, or route logic. Those stay in the Laravel packages.
 
 ## Current UI scope
 
-This package does **not** bundle shadcn/ui components yet.
+This package now ships a small internal component layer inspired by shadcn/ui patterns:
 
-Today it ships lightweight React primitives with semantic class names such as:
+- `Button`
+- `Card`
+- `Badge`
+- `Dialog`
+- `AttachmentList`
+- `AttachmentPreviewDialog`
+
+These components expect the host app to provide compatible Tailwind design tokens such as:
 
 - `bg-card`
 - `text-card-foreground`
 - `text-muted-foreground`
-- `text-destructive`
+- `ring-ring`
+- `bg-primary`
 
-That makes it easy to drop into an app that already uses shadcn-style tokens, but it is not the same as shipping real shadcn/ui source components.
+That keeps the package easy to theme inside a shadcn-style React or Inertia app without forcing backend Laravel dependencies into the frontend package.
 
 ## Recommended integration
 
 Use this package as:
 
 - typed attachment resource contracts
-- lightweight list/preview helpers
-- a foundation for a host app's own shadcn-composed attachment UI
+- shadcn-style attachment list and preview helpers
+- a foundation for richer host-app upload, caption, reorder, and delete workflows
 
-If we want first-class shadcn support later, the next step should be adding explicit adapter components built from real shadcn/ui building blocks rather than only relying on shared class tokens.
+## Example
+
+```tsx
+import {
+  AttachmentList,
+  AttachmentPreviewDialog,
+  useAttachmentPreview,
+  type AttachmentResource,
+} from '@kongpda/laravel-attachments-react';
+
+type AttachmentsPanelProps = {
+  attachments: AttachmentResource[];
+};
+
+export function AttachmentsPanel({ attachments }: AttachmentsPanelProps) {
+  const { previewing, openPreview, closePreview } = useAttachmentPreview();
+
+  return (
+    <>
+      <AttachmentList attachments={attachments} onPreview={openPreview} />
+      <AttachmentPreviewDialog
+        attachment={previewing}
+        open={previewing !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            closePreview();
+          }
+        }}
+      />
+    </>
+  );
+}
+```
 
 ## Local development
 
