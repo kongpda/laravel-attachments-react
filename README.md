@@ -12,7 +12,7 @@ It provides:
 - typed attachment contracts
 - composable React primitives
 - bundled shadcn-style source components for cards, buttons, badges, and dialogs
-- upload, preview, caption, and delete workflow helpers
+- preview, caption, and delete handler wiring (host app supplies the upload + persistence calls)
 
 It does not implement backend storage, auth, or route logic. Those stay in the Laravel packages.
 
