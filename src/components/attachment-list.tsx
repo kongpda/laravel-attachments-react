@@ -1,8 +1,8 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import type { AttachmentActionHandlers, AttachmentResource } from '../types';
 import { cn } from '../utils';
 import { Badge } from './badge';
-import { Button } from './button';
+import { Button, buttonVariants } from './button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './card';
 
 type AttachmentListProps = {
@@ -52,6 +52,11 @@ type AttachmentCardProps = {
 
 function AttachmentCard({ attachment, onPreview, onDelete, onCaptionSave }: AttachmentCardProps) {
   const [draft, setDraft] = useState<string>(attachment.caption ?? '');
+  const previewImageUrl = attachment.is_image ? attachment.url : attachment.thumbnail_url;
+
+  useEffect(() => {
+    setDraft(attachment.caption ?? '');
+  }, [attachment.caption, attachment.id]);
 
   const commitCaption = () => {
     if (!onCaptionSave) {
@@ -67,6 +72,22 @@ function AttachmentCard({ attachment, onPreview, onDelete, onCaptionSave }: Atta
 
   return (
     <Card className="overflow-hidden">
+      {previewImageUrl ? (
+        <button
+          type="button"
+          className="flex h-36 w-full items-center justify-center overflow-hidden border-b bg-muted/40"
+          onClick={() => onPreview?.(attachment)}
+          disabled={!attachment.is_previewable || !onPreview}
+          aria-label={`Preview ${attachment.file_name}`}
+        >
+          <img
+            src={previewImageUrl}
+            alt=""
+            className="h-full w-full object-contain"
+            loading="lazy"
+          />
+        </button>
+      ) : null}
       <CardHeader className="space-y-3 p-4 pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
@@ -107,10 +128,13 @@ function AttachmentCard({ attachment, onPreview, onDelete, onCaptionSave }: Atta
             Preview
           </Button>
         ) : null}
-        <a href={attachment.url} target="_blank" rel="noreferrer">
-          <Button variant="ghost" size="sm">
-            Open
-          </Button>
+        <a
+          href={attachment.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+        >
+          Open
         </a>
         {onDelete ? (
           <Button variant="destructive" size="sm" onClick={() => onDelete(attachment)}>

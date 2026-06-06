@@ -38,6 +38,12 @@ export function AttachmentPreviewDialog({
               alt={attachment.file_name}
               className="max-h-[70vh] w-full rounded-lg border object-contain"
             />
+          ) : attachment.file_type === 'application/pdf' && attachment.url ? (
+            <iframe
+              src={attachment.url}
+              title={attachment.file_name}
+              className="h-[70vh] w-full rounded-lg border bg-background"
+            />
           ) : (
             <div className="rounded-lg border border-dashed p-8 text-center">
               <p className="text-sm font-medium">{attachment.file_name}</p>
@@ -50,7 +56,7 @@ export function AttachmentPreviewDialog({
 
         <DialogFooter>
           {attachment ? (
-            <a href={attachment.url} target="_blank" rel="noreferrer">
+            <a href={attachment.url} target="_blank" rel="noopener noreferrer">
               <Button variant="outline">Open file</Button>
             </a>
           ) : null}
