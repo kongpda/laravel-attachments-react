@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import type { AttachmentActionHandlers, AttachmentResource } from '../types';
 import { cn } from '../utils';
 import { Badge } from './badge';
@@ -35,7 +35,9 @@ export function AttachmentList({
     <div className={cn('grid gap-4 md:grid-cols-2 xl:grid-cols-3', className)}>
       {attachments.map((attachment) => (
         <AttachmentCard
-          key={attachment.id}
+          // A caption saved elsewhere remounts the card, so the draft never
+          // shows a stale value.
+          key={`${attachment.id}:${attachment.caption ?? ''}`}
           attachment={attachment}
           onPreview={onPreview}
           onDelete={onDelete}
@@ -52,11 +54,9 @@ type AttachmentCardProps = {
 
 function AttachmentCard({ attachment, onPreview, onDelete, onCaptionSave }: AttachmentCardProps) {
   const [draft, setDraft] = useState<string>(attachment.caption ?? '');
-  const previewImageUrl = attachment.is_image ? attachment.url : attachment.thumbnail_url;
-
-  useEffect(() => {
-    setDraft(attachment.caption ?? '');
-  }, [attachment.caption, attachment.id]);
+  // The thumbnail is a few kilobytes; the original can be megabytes. Fall back
+  // to the original only while an image's thumbnail is still being generated.
+  const previewImageUrl = attachment.thumbnail_url ?? (attachment.is_image ? attachment.url : null);
 
   const commitCaption = () => {
     if (!onCaptionSave) {

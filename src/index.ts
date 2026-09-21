@@ -7,3 +7,7 @@ export * from './components/badge';
 export * from './components/button';
 export * from './components/card';
 export * from './components/dialog';
+export * from './lib/xhr-upload';
+export * from './hooks/use-upload-queue';
+export * from './components/file-dropzone';
+export * from './components/upload-tile';
